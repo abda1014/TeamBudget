@@ -1,51 +1,41 @@
-import {UUID} from "crypto";
-import {User} from "../../../users/entities/user.entity";
-import {IsNotEmpty, IsString, IsUUID} from "class-validator";
+// zahlung.entity.ts
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
+import { User } from '../../../users/entities/user.entity';
 
+@Entity()
 export class Zahlung {
-    get id(): string {
-        return this._id;
-    }
-    get beschreibung(): string {
-        return this._beschreibung;
-    }
+  @PrimaryGeneratedColumn('uuid', { name: 'zahlungs_id' })
+  id: string;
 
-    set beschreibung(value: string) {
-        this._beschreibung = value;
-    }
+  @Column({ type: 'varchar', length: 255 })
+  beschreibung: string;
 
-    get betrag(): bigint {
-        return this._betrag;
-    }
+  // Betrag in Cents als Integer
+  @Column({ type: 'int' })
+  betrag: number;
 
-    set betrag(value: bigint) {
-        this._betrag = value;
-    }
+  // Relation zum zahlenden User
+  //Hier muss zugleich die gruppe ausgeführt werden .....
+  @ManyToOne(() => User, (user) => user.username, { eager: true })
+  @JoinColumn({
+    name: 'user_id',
+  })
+  zahlender: User;
 
-    get zahlender(): User {
-        return this._zahlender;
-    }
+  @Column({ type: 'timestamp' })
+  datum: Date;
 
-    set zahlender(value: User) {
-        this._zahlender = value;
-    }
+  @CreateDateColumn({ type: 'timestamp' })
+  createdAt: Date;
 
-
-    constructor(beschreibung :string,betrag:bigint, zahlender:User) {
-        this.beschreibung = beschreibung;
-        this.betrag = betrag;
-        this.zahlender = zahlender;
-    }
-    @IsNotEmpty()
-    @IsString()
-    @IsUUID()
-    private _id: string;
-    private _beschreibung:string;
-    private _betrag: bigint;
-    private _zahlender: User;
-    datum: Date;
-
-
-
-
+  @UpdateDateColumn({ type: 'timestamp' })
+  updatedAt: Date;
 }

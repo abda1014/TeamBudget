@@ -1,59 +1,37 @@
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { User } from '../../../users/entities/user.entity';
-import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import { IsNotEmpty } from 'class-validator';
+import { Zahlung } from './zahlung.entity';
 
-export class kostenteilung {
-    get id(): string {
-        return this._id;
-    }
+@Entity()
+export class Kostenteilung {
+  @IsNotEmpty()
+  @PrimaryGeneratedColumn('uuid', { name: 'kostenteilungs_id' })
+  id: string;
 
-    get expenseId(): string {
-        return this._expenseId;
-    }
-    get betrag(): bigint {
-        return this._betrag;
-    }
+  @IsNotEmpty()
+  @ManyToOne(() => Zahlung, (zahlung) => zahlung.betrag)
+  @JoinColumn({
+    name: 'zahlung_id',
+  })
+  zahlung: string;
 
-    set betrag(value: bigint) {
-        this._betrag = value;
-    }
+  @Column({ type: 'int' })
+  betrag: bigint;
 
-    get schuldner(): User {
-        return this._schuldner;
-    }
+  @Column({
+    type: 'varchar',
+    length: 100,
+    nullable: false,
+  })
+  schuldner: User;
 
-    set schuldner(value: User) {
-        this._schuldner = value;
-    }
-
-    get wert(): bigint[] {
-        return this._wert;
-    }
-
-    set wert(value: bigint[]) {
-        this._wert = value;
-    }
-    constructor(betrag: bigint, schuldner: User, wert: bigint[]) {
-        this._betrag = betrag;
-        this._schuldner = schuldner;
-        this._wert = wert;
-    }
-    @IsNotEmpty()
-    @IsString()
-    @IsUUID()
-    private _id: string;
-
-    @IsNotEmpty()
-    @IsString()
-    @IsUUID()
-    private _expenseId: string;
-
-    private _betrag :bigint;
-
-    private _schuldner: User;
-
-    private _wert: bigint[];
-
-
-
-
+  @Column({ type: 'int' })
+  wert: bigint[];
 }

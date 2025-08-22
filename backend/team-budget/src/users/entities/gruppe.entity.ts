@@ -1,33 +1,34 @@
+import { User } from './user.entity';
+import { IsNotEmpty } from 'class-validator';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
-import {User} from "./user.entity";
-import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
+@Entity()
+export class Gruppe {
+  @IsNotEmpty()
+  @PrimaryGeneratedColumn('uuid', { name: 'gruppen_id' })
+  id: string;
+  @Column({
+    type: 'varchar',
+    length: 100,
+    nullable: false,
+  })
+  name: string;
 
-export class gruppe {
-    get name(): string {
-        return this._name;
-    }
-
-    set name(value: string) {
-        this._name = value;
-    }
-
-    get users(): User[] {
-        return this._users;
-    }
-
-    set users(value: User[]) {
-        this._users = value;
-    }
-    @IsNotEmpty()
-    @IsString()
-    @IsUUID()
-    id : string
-    private _name : string;
-    datum: Date;
-    private _users : User[];
-
-    constructor(name:string,users:User[], password:string){
-        this._name =name;
-        this._users=users;
-    }
+  @CreateDateColumn()
+  datum: Date;
+  @Column({
+    type: 'varchar',
+    length: 100,
+    nullable: false,
+  })
+  @ManyToMany(() => User, (user) => user.gruppe)
+  @JoinTable()
+  users: User[];
 }
