@@ -20,10 +20,10 @@ export class Kostenteilung {
   @JoinColumn({
     name: 'zahlung_id',
   })
-  zahlung: string;
+  zahlung: number;
 
   @Column({ type: 'int' })
-  betrag: bigint;
+  betrag: number;
 
   @Column({
     type: 'varchar',
@@ -33,5 +33,5 @@ export class Kostenteilung {
   schuldner: User;
 
   @Column({ type: 'int' })
-  wert: bigint[];
+  wert: number;
 }

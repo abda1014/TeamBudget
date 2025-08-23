@@ -48,6 +48,5 @@ export class User {
   passwordHash: string;
 
   @ManyToMany(() => Gruppe, (gruppe) => gruppe.users, { eager: true })
-  @JoinTable()
   gruppe: Gruppe[];
 }

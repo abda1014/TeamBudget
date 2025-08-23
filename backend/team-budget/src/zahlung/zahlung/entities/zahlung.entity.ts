@@ -7,8 +7,10 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { User } from '../../../users/entities/user.entity';
+import { Gruppe } from 'src/users/entities/gruppe.entity';
 
 @Entity()
 export class Zahlung {
@@ -23,12 +25,18 @@ export class Zahlung {
   betrag: number;
 
   // Relation zum zahlenden User
-  //Hier muss zugleich die gruppe ausgeführt werden .....
-  @ManyToOne(() => User, (user) => user.username, { eager: true })
+  //Hier müssen wir überprüfen das der user auch aus der gruppe ist!!
+  @OneToMany(() => User, (user) => user.username, { eager: true })
   @JoinColumn({
     name: 'user_id',
   })
   zahlender: User;
+
+  @ManyToOne(() => Gruppe, (gruppe) => gruppe.id, { eager: true })
+  @JoinColumn({
+    name: 'gruppe_id',
+  })
+  gruppe: Gruppe;
 
   @Column({ type: 'timestamp' })
   datum: Date;

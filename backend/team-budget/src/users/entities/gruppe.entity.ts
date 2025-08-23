@@ -14,6 +14,7 @@ export class Gruppe {
   @IsNotEmpty()
   @PrimaryGeneratedColumn('uuid', { name: 'gruppen_id' })
   id: string;
+
   @Column({
     type: 'varchar',
     length: 100,
@@ -23,6 +24,7 @@ export class Gruppe {
 
   @CreateDateColumn()
   datum: Date;
+
   @Column({
     type: 'varchar',
     length: 100,
