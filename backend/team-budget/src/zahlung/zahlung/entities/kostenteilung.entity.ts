@@ -20,10 +20,7 @@ export class Kostenteilung {
   @JoinColumn({
     name: 'zahlung_id',
   })
-  zahlung: number;
-
-  @Column({ type: 'int' })
-  betrag: number;
+  zahlung: Zahlung;
 
   @Column({
     type: 'varchar',
@@ -34,4 +31,7 @@ export class Kostenteilung {
 
   @Column({ type: 'int' })
   wert: number;
+
+  @Column({ type: 'bool' })
+  berücksichtigen: boolean;
 }
