@@ -16,22 +16,19 @@ export class Kostenteilung {
   id: string;
 
   @IsNotEmpty()
-  @ManyToOne(() => Zahlung, (zahlung) => zahlung.betrag)
-  @JoinColumn({
-    name: 'zahlung_id',
+  // onDelete: 'CASCADE' sorgt dafür, dass beim Entfernen einer Zahlung
+  // alle zugehörigen Kostenteilungen von der DB entfernt werden.
+  @ManyToOne(() => Zahlung, (zahlung) => zahlung.kostenteilungen, {
+    onDelete: 'CASCADE',
   })
+  @JoinColumn({ name: 'zahlung_id' })
   zahlung: Zahlung;
 
-  @Column({
-    type: 'varchar',
-    length: 100,
-    nullable: false,
-  })
+  // Schuldner als Relation zum User (statt Column mit User-Typ)
+  @ManyToOne(() => User, { eager: true })
+  @JoinColumn({ name: 'schuldner_id' })
   schuldner: User;
 
   @Column({ type: 'int' })
   wert: number;
-
-  @Column({ type: 'bool' })
-  berücksichtigen: boolean;
 }
