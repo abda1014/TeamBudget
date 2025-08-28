@@ -5,6 +5,8 @@ import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { Gruppe } from './entities/gruppe.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { UpdateGruppeDto } from './dto/update-gruppe.dto';
+import { CreateGruppeDto } from './dto/create-gruppe.dto';
 
 @Injectable()
 export class UsersService {
@@ -14,12 +16,17 @@ export class UsersService {
     @InjectRepository(Gruppe)
     private readonly gruppeRepsoitory: Repository<Gruppe>,
   ) {}
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  // Einen User erstellen
+  async createUser(createUserDto: CreateUserDto): Promise<User> {
+    return await this.userRepository.save(createUserDto);
+  }
+  // Eine Gruppe erstellen
+  async createGruppe(createGruppeDto: CreateGruppeDto): Promise<Gruppe> {
+    return await this.gruppeRepsoitory.save(createGruppeDto);
   }
 
   findAll() {
-    return `This action returns all users`;
+    return this.userRepository.find();
   }
   // gib mir den user basierend aus der gruppe
   async findOneUser(id: string): Promise<User> {
@@ -29,9 +36,9 @@ export class UsersService {
     }
     return user;
   }
-  //Gib mir die gruppe des Users
-  async findGruppe(id: string): Promise<Gruppe[]> {
-    const user = await this.findOneUser(id);
+  //Gib mir alle gruppen  des Users
+  async findGruppe(user_id: string): Promise<Gruppe[]> {
+    const user = await this.findOneUser(user_id);
     const gruppe = user.gruppe;
     if (!gruppe || gruppe.length === 0) {
       throw new NotFoundException(`Es wurden keine Gruppen hinzugefügt`);
@@ -48,12 +55,42 @@ export class UsersService {
     }
     return gruppe.users;
   }
-
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  //Gib mir die Gruppe wo sich der User befindet
+  async findUserfromgruppe(
+    user_id: string,
+    gruppe_id: string,
+  ): Promise<Gruppe> {
+    const gruppedesUser = await this.findGruppe(user_id);
+    const gruppe = gruppedesUser.find((g) => g.id === gruppe_id);
+    if (!gruppe) {
+      throw new NotFoundException('Die Gruppe wurde nicht gefunden ');
+    }
+    return gruppe;
   }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  //Einen User aktualisieren
+  async updateUser(user: User, updateUserDto: UpdateUserDto) {
+    Object.assign(user, updateUserDto);
+    return await this.userRepository.save(user);
+  }
+  // Eine Gruppe aktualisieren
+  async updateGruppe(
+    gruppe: Gruppe,
+    updateGruppeDto: UpdateGruppeDto,
+  ): Promise<Gruppe> {
+    Object.assign(gruppe, updateGruppeDto);
+    return await this.gruppeRepsoitory.save(gruppe);
+  }
+  //Lösche den User von der Gruppe
+  async removeUserfromGruppe(user: User, gruppe_id: string): Promise<void> {
+    const gruppe = await this.findUserfromgruppe(user.id, gruppe_id);
+    // remove the user from the group's users array and persist
+    if (gruppe.users && gruppe.users.length > 0) {
+      gruppe.users = gruppe.users.filter((u) => u.id !== user.id);
+      await this.gruppeRepsoitory.save(gruppe);
+    }
+  }
+  //Lösche die Gruppe
+  async removeGruppe(gruppe: Gruppe): Promise<void> {
+    await this.gruppeRepsoitory.delete({ id: gruppe.id });
   }
 }

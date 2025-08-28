@@ -1,34 +1,76 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
 import { ZahlungService } from './zahlung.service';
 import { CreateZahlungDto } from './dto/create-zahlung.dto';
-import { UpdateZahlungDto } from './dto/update-zahlung.dto';
+import { CreateKostenteilungDto } from './dto/create-kostenteilung.dto';
 
-@Controller('zahlung')
+@Controller('zahlungen')
 export class ZahlungController {
   constructor(private readonly zahlungService: ZahlungService) {}
 
+  // Erstelle eine Zahlung, optional mit Kostenteilungen
   @Post()
-  create(@Body() createZahlungDto: CreateZahlungDto) {
-    return this.zahlungService.create(createZahlungDto);
+  async create(
+    @Body()
+    body: {
+      zahlung: CreateZahlungDto;
+      splits?: CreateKostenteilungDto[];
+    },
+  ) {
+    const { zahlung, splits } = body;
+    return await this.zahlungService.create(zahlung, splits);
   }
 
+  // Alle Zahlungen
   @Get()
   findAll() {
     return this.zahlungService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.zahlungService.findOne(+id);
+  // Zahlungen einer Gruppe
+  @Get('group/:gruppenId')
+  findAllByGroup(@Param('gruppenId') gruppenId: string) {
+    return this.zahlungService.findAllZahlungenfromGruppe(gruppenId);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateZahlungDto: UpdateZahlungDto) {
-    return this.zahlungService.update(+id, updateZahlungDto);
+  // Zahlungen eines Users (als Zahler)
+  @Get('user/:userId')
+  findByUser(@Param('userId') userId: string) {
+    return this.zahlungService.findZahlungbyUser(userId);
   }
 
+  // Alle Kostenteilungs‑Splits, die einen User betreffen
+  @Get('splits/user/:userId')
+  findSplitsByUser(@Param('userId') userId: string) {
+    return this.zahlungService.findAllZahlungsSplitbyUser(userId);
+  }
+
+  // Ein spezfischer Split
+  @Get('splits/:id')
+  findSplit(@Param('id') id: string) {
+    return this.zahlungService.findZahlungsSplit(id);
+  }
+
+  // Verbindlichkeiten Gesamt (Dashboard)
+  @Get('verbindlichkeiten/user/:userId')
+  findVerbindlichkeiten(@Param('userId') userId: string) {
+    return this.zahlungService.findAllVerbindlichkeitenenbyUser(userId);
+  }
+
+  // Verbindlichkeiten des Users innerhalb einer Gruppe
+  @Get('verbindlichkeiten/group/:gruppenId/user/:userId')
+  findVerbindlichkeitenByUserInGroup(
+    @Param('gruppenId') gruppenId: string,
+    @Param('userId') userId: string,
+  ) {
+    return this.zahlungService.findVerbindlichkeitenbyUserinGroup(
+      gruppenId,
+      userId,
+    );
+  }
+
+  // Lösche eine Zahlung (Cascade löscht Splits)
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.zahlungService.remove(+id);
+    return this.zahlungService.remove(id);
   }
 }

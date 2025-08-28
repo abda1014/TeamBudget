@@ -6,11 +6,12 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
-  JoinColumn,
   OneToMany,
+  JoinColumn,
 } from 'typeorm';
 import { User } from '../../../users/entities/user.entity';
 import { Gruppe } from 'src/users/entities/gruppe.entity';
+import { Kostenteilung } from './kostenteilung.entity';
 
 @Entity()
 export class Zahlung {
@@ -20,13 +21,13 @@ export class Zahlung {
   @Column({ type: 'varchar', length: 255 })
   beschreibung: string;
 
-  // Betrag in Cents als Integer
+  // Betrag in Euro
   @Column({ type: 'int' })
   betrag: number;
 
   // Relation zum zahlenden User
   //Hier müssen wir überprüfen das der user auch aus der gruppe ist!!
-  @OneToMany(() => User, (user) => user.username, { eager: true })
+  @ManyToOne(() => User, (user) => user.username, { eager: true })
   @JoinColumn({
     name: 'user_id',
   })
@@ -46,4 +47,8 @@ export class Zahlung {
 
   @UpdateDateColumn({ type: 'timestamp' })
   updatedAt: Date;
+
+  // Inverse relation zu Kostenteilung (nicht eager geladen)
+  @OneToMany(() => Kostenteilung, (k) => k.zahlung)
+  kostenteilungen?: Kostenteilung[];
 }

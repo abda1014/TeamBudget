@@ -1,5 +1,5 @@
 // create-kostenteilung.dto.ts
-import { IsUUID, IsInt, Min, IsBoolean, IsOptional } from 'class-validator';
+import { IsUUID, IsInt, Min } from 'class-validator';
 
 export class CreateKostenteilungDto {
   @IsUUID()
@@ -11,8 +11,4 @@ export class CreateKostenteilungDto {
   @IsInt()
   @Min(0)
   wert: number; // in Cents
-
-  @IsOptional()
-  @IsBoolean()
-  berücksichtigen?: boolean = true;
 }

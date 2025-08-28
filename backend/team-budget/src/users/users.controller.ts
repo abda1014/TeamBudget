@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { CreateGruppeDto } from './dto/create-gruppe.dto';
 
 @Controller('users')
 export class UsersController {
@@ -9,7 +10,7 @@ export class UsersController {
 
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+    return this.usersService.createUser(createUserDto);
   }
 
   @Get()
@@ -19,16 +20,30 @@ export class UsersController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+    return this.usersService.findOneUser(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    const user = await this.usersService.findOneUser(id);
+    return this.usersService.updateUser(user, updateUserDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  // Gruppen des Users
+  @Get(':id/groups')
+  findGroups(@Param('id') id: string) {
+    return this.usersService.findGruppe(id);
+  }
+
+  // Alle User in einer Gruppe
+  @Get('groups/:id/users')
+  findUsersInGroup(@Param('id') id: string) {
+    return this.usersService.findAllUserinGruppe(id);
+  }
+
+  // Gruppe erstellen
+  @Post('groups')
+  createGroup(@Body() createGruppeDto: CreateGruppeDto) {
+    return this.usersService.createGruppe(createGruppeDto);
   }
 }
