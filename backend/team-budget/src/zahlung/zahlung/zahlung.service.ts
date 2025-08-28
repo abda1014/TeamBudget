@@ -7,10 +7,11 @@ import { CreateZahlungDto } from './dto/create-zahlung.dto';
 import { UpdateZahlungDto } from './dto/update-zahlung.dto';
 import { Zahlung } from './entities/zahlung.entity';
 import { User } from '../../users/entities/user.entity';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Kostenteilung } from './entities/kostenteilung.entity';
 import { CreateKostenteilungDto } from './dto/create-kostenteilung.dto';
+import { Gruppe } from 'src/users/entities/gruppe.entity';
 
 @Injectable()
 export class ZahlungService {
@@ -33,12 +34,12 @@ export class ZahlungService {
 
       // 1) Lade Gruppe + prüfe Existenz
       const gruppe = await gruppeRepo.findOne({
-        where: { id: createZahlungDto.gruppeId },
+        where: { id: createZahlungDto.id },
         relations: ['users'], // <- Stelle sicher, dass Gruppe.users existiert
       });
       if (!gruppe) {
         throw new NotFoundException(
-          `Gruppe mit id ${createZahlungDto.gruppeId} nicht gefunden`,
+          `Gruppe mit id ${createZahlungDto.id} nicht gefunden`,
         );
       }
       const gruppenUserIds = new Set(
@@ -166,7 +167,7 @@ export class ZahlungService {
 
       // Optional: Zahlung inkl. Kostenteilungen zurückgeben
       // (erneut laden, um Relation verfügbar zu haben)
-      return await zahlungRepo.findOne({
+      const result = await zahlungRepo.findOne({
         where: { id: savedZahlung.id },
         relations: [
           'kostenteilungen',
@@ -175,6 +176,12 @@ export class ZahlungService {
           'gruppe',
         ],
       });
+      if (!result) {
+        throw new NotFoundException(
+          `Zahlung mit id ${savedZahlung.id} nicht gefunden`,
+        );
+      }
+      return result;
     });
   }
   //Gib mir den spezifischen Zahlungssplit

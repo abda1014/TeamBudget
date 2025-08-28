@@ -9,6 +9,11 @@ import {
 } from 'class-validator';
 
 export class CreateZahlungDto {
+  @IsNotEmpty()
+  @IsString()
+  @IsUUID()
+  id: string;
+
   @IsString()
   @IsNotEmpty()
   beschreibung!: string;
